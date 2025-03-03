@@ -18,17 +18,15 @@ type Certificate struct {
 
 var (
 	certificates []Certificate
-	mutex        sync.Mutex // For concurrent access safety
+	mutex        sync.Mutex 
 )
 
-// Utility function to send JSON responses
 func sendJSONResponse(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
 }
 
-// getCertificateByID - Fetch a certificate by ID
 func getCertificateByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
@@ -49,7 +47,6 @@ func getCertificateByID(w http.ResponseWriter, r *http.Request) {
 	sendJSONResponse(w, map[string]string{"error": "Certificate not found"}, http.StatusNotFound)
 }
 
-// createCertificate - Add a new certificate
 func createCertificate(w http.ResponseWriter, r *http.Request) {
 	var cert Certificate
 	if err := json.NewDecoder(r.Body).Decode(&cert); err != nil {
@@ -66,14 +63,12 @@ func createCertificate(w http.ResponseWriter, r *http.Request) {
 	sendJSONResponse(w, cert, http.StatusCreated)
 }
 
-// getAllCertificates - Retrieve all certificates
 func getAllCertificates(w http.ResponseWriter, r *http.Request) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	sendJSONResponse(w, certificates, http.StatusOK)
 }
 
-// updateCertificate - Update an existing certificate by ID
 func updateCertificate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err := strconv.Atoi(params["id"])
