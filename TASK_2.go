@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"html/template"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -115,22 +112,20 @@ func uploadCertificateData(c *gin.Context) {
 		return
 	}
 
-	data, err := readCSVData(savePath)
+	certData, err := readCSVToCertificates(savePath)
 	if err != nil {
 		sendJSONResponse(c, gin.H{"error": "Failed to read CSV file"}, http.StatusInternalServerError)
 		return
 	}
 
-	filledTemplate, err := fillTemplate(data)
-	if err != nil {
-		sendJSONResponse(c, gin.H{"error": "Failed to process template"}, http.StatusInternalServerError)
-		return
-	}
+	mutex.Lock()
+	certificates = append(certificates, certData...)
+	mutex.Unlock()
 
-	sendJSONResponse(c, gin.H{"filled_template": filledTemplate}, http.StatusOK)
+	sendJSONResponse(c, gin.H{"message": "Certificates added successfully"}, http.StatusOK)
 }
 
-func readCSVData(filePath string) ([]map[string]string, error) {
+func readCSVToCertificates(filePath string) ([]Certificate, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -147,47 +142,25 @@ func readCSVData(filePath string) ([]map[string]string, error) {
 		return nil, fmt.Errorf("CSV file must have at least one data row")
 	}
 
-	var data []map[string]string
-
-	// Loop through each data row (starting from index 1)
-	for _, row := range records[1:] {
-		rowMap := make(map[string]string)
-		for i, col := range records[0] { // Header row as keys
-			if i < len(row) {
-				rowMap[col] = row[i]
-			}
+	var certs []Certificate
+	for i, row := range records[1:] {
+		if len(row) < 6 {
+			continue
 		}
-		data = append(data, rowMap)
-	}
-
-	return data, nil
-}
-
-
-func fillTemplates(dataList []map[string]string) ([]string, error) {
-	templateFile := "./templates/sample_template.txt"
-	content, err := ioutil.ReadFile(templateFile)
-	if err != nil {
-		return nil, err
-	}
-
-	tmpl, err := template.New("template").Parse(string(content))
-	if err != nil {
-		return nil, err
-	}
-
-	var results []string
-
-	for _, data := range dataList {
-		var output strings.Builder
-		err = tmpl.Execute(&output, data)
-		if err != nil {
-			return nil, err
+		cert := Certificate{
+			ID:         len(certificates) + i + 1,
+			Name:       row[0],
+			Course:     row[1],
+			IssuedTo:   row[2],
+			IssueDate:  row[3],
+			ExpiryDate: row[4],
+			Issuer:     row[5],
+			Content:    fmt.Sprintf("Certificate for %s in %s issued by %s", row[2], row[1], row[5]),
 		}
-		results = append(results, output.String())
+		certs = append(certs, cert)
 	}
 
-	return results, nil
+	return certs, nil
 }
 
 func main() {
