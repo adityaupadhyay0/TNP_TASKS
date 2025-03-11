@@ -155,7 +155,7 @@ func readCSVToCertificates(filePath string) ([]Certificate, error) {
 			IssueDate:  row[3],
 			ExpiryDate: row[4],
 			Issuer:     row[5],
-			Content:    fmt.Sprintf("Certificate for %s in %s issued by %s", row[2], row[1], row[5]),
+			Content:    fmt.Sprintf("Certificate of Completion awarded to %s for successfully completing %s, issued by %s", row[2], row[1], row[5]),
 		}
 		certs = append(certs, cert)
 	}
