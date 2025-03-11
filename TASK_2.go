@@ -130,7 +130,7 @@ func uploadCertificateData(c *gin.Context) {
 	sendJSONResponse(c, gin.H{"filled_template": filledTemplate}, http.StatusOK)
 }
 
-func readCSVData(filePath string) (map[string]string, error) {
+func readCSVData(filePath string) ([]map[string]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -143,35 +143,51 @@ func readCSVData(filePath string) (map[string]string, error) {
 		return nil, err
 	}
 
-	data := make(map[string]string)
-	if len(records) > 1 {
-		for i, col := range records[0] {
-			if i < len(records[1]) {
-				data[col] = records[1][i]
+	if len(records) < 2 {
+		return nil, fmt.Errorf("CSV file must have at least one data row")
+	}
+
+	var data []map[string]string
+
+	// Loop through each data row (starting from index 1)
+	for _, row := range records[1:] {
+		rowMap := make(map[string]string)
+		for i, col := range records[0] { // Header row as keys
+			if i < len(row) {
+				rowMap[col] = row[i]
 			}
 		}
+		data = append(data, rowMap)
 	}
+
 	return data, nil
 }
 
-func fillTemplate(data map[string]string) (string, error) {
+
+func fillTemplates(dataList []map[string]string) ([]string, error) {
 	templateFile := "./templates/sample_template.txt"
 	content, err := ioutil.ReadFile(templateFile)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
 	tmpl, err := template.New("template").Parse(string(content))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	var output strings.Builder
-	err = tmpl.Execute(&output, data)
-	if err != nil {
-		return "", err
+	var results []string
+
+	for _, data := range dataList {
+		var output strings.Builder
+		err = tmpl.Execute(&output, data)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, output.String())
 	}
 
-	return output.String(), nil
+	return results, nil
 }
 
 func main() {
