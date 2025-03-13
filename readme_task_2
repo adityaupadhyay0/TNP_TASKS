@@ -1,0 +1,140 @@
+Certificate Management API
+
+This is a simple Certificate Management API built using Go and the Gin framework. The API allows users to create, retrieve, update, and upload certificate data in CSV format.
+
+Features
+
+Create a new certificate
+
+Retrieve a certificate by ID
+
+Get all certificates
+
+Update an existing certificate
+
+Upload a CSV file to batch import certificates
+
+Installation
+
+Prerequisites
+
+Go (version 1.16 or later)
+
+Gin framework
+
+
+
+Install Dependencies
+
+go mod tidy
+
+Usage
+
+Run the Server
+
+go run main.go
+
+The server will start on http://localhost:8080
+
+API Endpoints
+
+1. Create a New Certificate
+
+Endpoint: POST /certificates
+
+Request Body (JSON):
+
+{
+  "name": "Certificate of Excellence",
+  "course": "Go Programming",
+  "issued_to": "John Doe",
+  "issue_date": "2025-03-13",
+  "expiry_date": "2026-03-13",
+  "issuer": "Tech Academy",
+  "content": "Certificate of Completion awarded to John Doe for successfully completing Go Programming."
+}
+
+Response:
+
+{
+  "id": 1,
+  "name": "Certificate of Excellence",
+  "course": "Go Programming",
+  "issued_to": "John Doe",
+  "issue_date": "2025-03-13",
+  "expiry_date": "2026-03-13",
+  "issuer": "Tech Academy",
+  "content": "Certificate of Completion awarded to John Doe for successfully completing Go Programming."
+}
+
+2. Retrieve a Certificate by ID
+
+Endpoint: GET /certificates/{id}
+
+Response:
+
+{
+  "id": 1,
+  "name": "Certificate of Excellence",
+  "course": "Go Programming",
+  "issued_to": "John Doe",
+  "issue_date": "2025-03-13",
+  "expiry_date": "2026-03-13",
+  "issuer": "Tech Academy",
+  "content": "Certificate of Completion awarded to John Doe for successfully completing Go Programming."
+}
+
+3. Get All Certificates
+
+Endpoint: GET /certificates
+
+Response:
+
+[
+  {
+    "id": 1,
+    "name": "Certificate of Excellence",
+    "course": "Go Programming",
+    "issued_to": "John Doe",
+    "issue_date": "2025-03-13",
+    "expiry_date": "2026-03-13",
+    "issuer": "Tech Academy",
+    "content": "Certificate of Completion awarded to John Doe for successfully completing Go Programming."
+  }
+]
+
+4. Update a Certificate
+
+Endpoint: PUT /certificates/{id}
+
+Request Body (JSON):
+
+{
+  "name": "Updated Certificate",
+  "course": "Advanced Go Programming",
+  "issued_to": "Jane Doe",
+  "issue_date": "2025-04-01",
+  "expiry_date": "2026-04-01",
+  "issuer": "Code Academy",
+  "content": "Certificate awarded to Jane Doe for completing Advanced Go Programming."
+}
+
+5. Upload a CSV File
+
+Endpoint: POST /certificates/upload
+
+Request: Upload a CSV file with columns: name, course, issued_to, issue_date, expiry_date, issuer
+
+Project Structure
+
+.
+├── main.go
+├── go.mod
+├── go.sum
+├── uploads/         
+└── README.md
+
+
+Author
+
+Your Name - adityaupadhyay0
