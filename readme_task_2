@@ -125,14 +125,7 @@ Endpoint: POST /certificates/upload
 
 Request: Upload a CSV file with columns: name, course, issued_to, issue_date, expiry_date, issuer
 
-Project Structure
 
-.
-├── main.go
-├── go.mod
-├── go.sum
-├── uploads/         
-└── README.md
 
 
 Author
